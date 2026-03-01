@@ -1,5 +1,5 @@
 """
-Test script showing how VJ's mapping works.
+Test script showing how mapping works.
 This demonstrates converting Azure AI responses to GitHub Review API format.
 """
 

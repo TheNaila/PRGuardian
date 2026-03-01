@@ -11,7 +11,7 @@ def run_pr_audit(repo_full_name, pr_number, azure_ai_response_json):
     """
     Complete workflow: from Azure AI response to GitHub PR review.
     
-    This is what your GitHub Action will call!
+    This is what  GitHub Action will call!
     
     Args:
         repo_full_name: "owner/repo"
@@ -40,7 +40,7 @@ def run_pr_audit(repo_full_name, pr_number, azure_ai_response_json):
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# EXAMPLE: What your GitHub Action workflow will look like
+# EXAMPLE: What GitHub Action workflow will look like
 # ═════════════════════════════════════════════════════════════════════════════
 
 """
@@ -77,15 +77,13 @@ import json
 import os
 from app import parse_diff_to_positions, map_ai_response_to_github_format, post_bulk_review
 
-# 1. Naila: Fetch PR diff
-# (Naila's responsibility - shown here for context)
+# 1. Fetch PR diff
 # diff = fetch_pr_diff(...)
 
-# 2. Naila: Send to Azure
-# (Naila's responsibility)
+# 2. Send to Azure
 # ai_response = call_azure_api(diff, system_prompt)
 
-# 3. Amy: Receive from Azure
+# 3. Receive from Azure
 # Example response from Azure:
 ai_response = [
     {
@@ -102,7 +100,7 @@ ai_response = [
     }
 ]
 
-# 4. VJ: Convert and post
+# 4. Convert and post
 repo_full_name = '${{ github.repository }}'
 pr_number = ${{ github.event.pull_request.number }}
 
@@ -113,7 +111,7 @@ run_pr_audit(repo_full_name, pr_number, ai_response)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# TESTING: Simulate the entire workflow locally
+# TESTING: Simulating the entire workflow locally
 # ═════════════════════════════════════════════════════════════════════════════
 
 def test_complete_workflow():
@@ -121,7 +119,7 @@ def test_complete_workflow():
     Test the complete workflow with fake data.
     """
     
-    # Simulate what Azure AI would return
+    # Simulating what Azure AI would return
     azure_ai_findings = [
         {
             "file_path": "src/config.py",
@@ -137,7 +135,7 @@ def test_complete_workflow():
         }
     ]
     
-    # Simulate a sample diff
+    # Simulating a sample diff
     sample_diff = """diff --git a/src/config.py b/src/config.py
 index 1234567..abcdefg 100644
 --- a/src/config.py
@@ -194,7 +192,7 @@ index 1234567..abcdefg 100644
 
 if __name__ == "__main__":
     print("\n" + "="*70)
-    print("PRGuardian VJ Integration Module")
+    print("PRGuardian Integration Module")
     print("="*70)
     print("\nRunning local workflow test...\n")
     test_complete_workflow()
