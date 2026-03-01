@@ -1,0 +1,8 @@
+[
+  {
+    "path": "src/app.py",
+    "line": 12,
+    "side": "RIGHT",
+    "body": "CRITICAL: This hardcoded API key should be moved to an environment variable."
+  }
+]
