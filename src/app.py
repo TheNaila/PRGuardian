@@ -175,13 +175,13 @@ def update_github_labels(repo_name, pr_number, ai_response_text):
     
     Rules:
     - Always remove "audit-requested" label first (cleanup)
-    - If ANY [HIGH] issues found OR more than 3 [MEDIUM] issues: add "NO-GO"
+    - If ANY [CRITICAL] OR [HIGH] issues found OR more than 3 [MEDIUM] issues: add "NO-GO"
     - Otherwise: add "GO"
     
     Args:
         repo_name: Repository name (e.g., "owner/repo")
         pr_number: Pull request number (integer)
-        ai_response_text: AI response text containing severity markers like [HIGH], [MEDIUM]
+        ai_response_text: AI response text containing severity markers like [CRITICAL], [HIGH], [MEDIUM]
     """
     # 1. Connect to GitHub and get the PR
     g = Github(os.getenv("GITHUB_TOKEN"))
@@ -195,15 +195,17 @@ def update_github_labels(repo_name, pr_number, ai_response_text):
     except:
         pass  # Label might have already been removed or doesn't exist
     
-    # 3. Count severity levels in AI response
+    # 3. Count all severity levels in AI response 
+    critical_count = ai_response_text.count("[CRITICAL]")
     high_count = ai_response_text.count("[HIGH]")
     medium_count = ai_response_text.count("[MEDIUM]")
     
     # 4. Determine which label to apply
-    if high_count > 0 or medium_count > 3:
-        # Critical issues found - block the PR
+    if critical_count > 0 or high_count > 0 or medium_count > 3:
+        # Critical/high priority issues found - block the PR
         pr.add_to_labels("NO-GO")
         print(f" Critical issues found. Applied NO-GO label.")
+        print(f"   - CRITICAL issues: {critical_count}")
         print(f"   - HIGH severity issues: {high_count}")
         print(f"   - MEDIUM severity issues: {medium_count}")
     else:
