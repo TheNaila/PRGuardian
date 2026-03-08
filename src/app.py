@@ -129,9 +129,9 @@ def post_bulk_review(repo_full_name, pr_number, ai_suggestions):
     diff_url = pr.diff_url
     diff_text = g.get_user().get_user(repo.owner.login).get_repo(repo.name).get_pulls(
         state="open"
-    )[0].get_issue_comments()  # This is a quick way, but let's use a better approach
+    )[0].get_issue_comments()  
     
-    # Actually, let's get diff directly:
+    
     import requests
     headers = {"Accept": "application/vnd.github.v3.diff"}
     headers["Authorization"] = f"token {os.getenv('GITHUB_TOKEN')}"
@@ -167,3 +167,48 @@ def post_bulk_review(repo_full_name, pr_number, ai_suggestions):
     )
     
     print(f"Review posted to PR #{pr_number} with {len(github_comments)} inline comments")
+
+
+def update_github_labels(repo_name, pr_number, ai_response_text):
+    """
+    Update GitHub PR labels based on AI response severity.
+    
+    Rules:
+    - Always remove "audit-requested" label first (cleanup)
+    - If ANY [HIGH] issues found OR more than 3 [MEDIUM] issues: add "NO-GO"
+    - Otherwise: add "GO"
+    
+    Args:
+        repo_name: Repository name (e.g., "owner/repo")
+        pr_number: Pull request number (integer)
+        ai_response_text: AI response text containing severity markers like [HIGH], [MEDIUM]
+    """
+    # 1. Connect to GitHub and get the PR
+    g = Github(os.getenv("GITHUB_TOKEN"))
+    repo = g.get_repo(repo_name)
+    pr = repo.get_pull(int(pr_number))
+    
+    # 2. Always remove audit-requested label first to prevent loops
+    try:
+        pr.remove_from_labels("audit-requested")
+        print(" Removed 'audit-requested' label")
+    except:
+        pass  # Label might have already been removed or doesn't exist
+    
+    # 3. Count severity levels in AI response
+    high_count = ai_response_text.count("[HIGH]")
+    medium_count = ai_response_text.count("[MEDIUM]")
+    
+    # 4. Determine which label to apply
+    if high_count > 0 or medium_count > 3:
+        # Critical issues found - block the PR
+        pr.add_to_labels("NO-GO")
+        print(f" Critical issues found. Applied NO-GO label.")
+        print(f"   - HIGH severity issues: {high_count}")
+        print(f"   - MEDIUM severity issues: {medium_count}")
+    else:
+        # No critical issues - allow the PR
+        pr.add_to_labels("GO")
+        print(f" No critical issues. Applied GO label.")
+        if medium_count > 0:
+            print(f"   - Note: {medium_count} medium-severity issues found but within threshold")
