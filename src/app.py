@@ -204,13 +204,13 @@ def update_github_labels(repo_name, pr_number, ai_response_text):
     if critical_count > 0 or high_count > 0 or medium_count > 3:
         # Critical/high priority issues found - block the PR
         pr.add_to_labels("NO-GO")
-        print(f" Critical issues found. Applied NO-GO label.")
+        print(" Critical issues found. Applied NO-GO label.")
         print(f"   - CRITICAL issues: {critical_count}")
         print(f"   - HIGH severity issues: {high_count}")
         print(f"   - MEDIUM severity issues: {medium_count}")
     else:
         # No critical issues - allow the PR
         pr.add_to_labels("GO")
-        print(f" No critical issues. Applied GO label.")
+        print(" No critical issues. Applied GO label.")
         if medium_count > 0:
             print(f"   - Note: {medium_count} medium-severity issues found but within threshold")
