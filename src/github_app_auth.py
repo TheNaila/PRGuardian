@@ -27,7 +27,7 @@ def get_installation_access_token() -> str:
     """
     load_dotenv()
 
-    app_id = _require_env("GITHUB_APP_ID")
+    client_id = _require_env("GITHUB_CLIENT_ID")
     installation_id = _require_env("GITHUB_INSTALLATION_ID")
     key_path = Path(_require_env("GITHUB_PRIVATE_KEY_PATH")).expanduser()
 
@@ -40,7 +40,7 @@ def get_installation_access_token() -> str:
     payload = {
         "iat": now - 60,          # backdate 60s to avoid clock skew issues
         "exp": now + 9 * 60,      # GitHub requires exp <= 10 minutes
-        "iss": app_id,            # App ID (numeric)
+        "iss": client_id,         # App ID (numeric)
     }
 
     app_jwt = jwt.encode(payload, private_key_pem, algorithm="RS256")
@@ -63,8 +63,9 @@ def get_installation_access_token() -> str:
 
     return token
 
-
-if __name__ == "__main__":
-    tok = get_installation_access_token()
-    print("✅ Installation access token acquired.")
-    print(tok[:8] + "..." + tok[-6:])  # don't print full token
+def get_github_token() -> str:
+    """
+    Standard token accessor for the rest of the app.
+    Currently uses GitHub App installation auth.
+    """
+    return get_installation_access_token()

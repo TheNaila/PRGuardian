@@ -1,7 +1,8 @@
 import os
 from typing import List
-from azure.search.documents import SearchClient
+
 from azure.core.credentials import AzureKeyCredential
+from azure.search.documents import SearchClient
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,7 +13,8 @@ search_client = SearchClient(
     credential=AzureKeyCredential(os.environ["AZURE_SEARCH_API_KEY"])
 )
 
-def get_top_policy_snippets(query_text: str, top_k: int = 3) -> List[str]:
+
+def search_policy_snippets(query_text: str, top_k: int = 3) -> List[str]:
     results = search_client.search(
         search_text=query_text,
         top=top_k

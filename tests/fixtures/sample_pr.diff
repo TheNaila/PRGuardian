@@ -1,0 +1,25 @@
+diff --git a/src/app.py b/src/app.py
+index 7a8b9c1..3b4c5d6 100644
+--- a/src/app.py
++++ b/src/app.py
+@@ -10,6 +10,10 @@ def calculate_total(items):
+     total = 0
+     for item in items:
+         total += item["price"]
++        if item["price"] < 0:
++            raise ValueError("Negative price detected")
+     return total
+
+
+diff --git a/src/api.py b/src/api.py
+index 1a2b3c4..9f8e7d6 100644
+--- a/src/api.py
++++ b/src/api.py
+@@ -20,6 +20,8 @@ def get_user(user_id):
+     user = db.get(user_id)
+
+     if not user:
++        print("User not found:", user_id)
++        raise Exception("User missing")
+
+     return user

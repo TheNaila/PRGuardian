@@ -1,6 +1,6 @@
-from azure_review import analyze_diff_with_gpt4o
-from fetch_pr_diff import fetch_pr_diff
-from policy_search import get_top_policy_snippets
+from src.azure_review import analyze_diff_with_gpt4o
+from src.fetch_pr_diff import fetch_pr_diff
+from src.policy_search import get_top_policy_snippets
 import os
 from dotenv import load_dotenv
 
