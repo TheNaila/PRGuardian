@@ -31,7 +31,7 @@ def review_pr_diff(diff_text: str, policy_snippets=None) -> list[dict]:
     policy_snippets = policy_snippets or []
 
     formatted_policies = "\n\n".join(
-        [f"Policy Snippet {i + 1}:\n{snippet}" for i, snippet in enumerate(policy_snippets[:3])]
+        [f"Policy Snippet {i + 1}:\n{snippet}" for i, snippet in enumerate(policy_snippets)]
     )
 
     response = client.chat.completions.create(

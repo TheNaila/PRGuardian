@@ -1,21 +1,40 @@
 import os
+import azure.functions as func
+import logging
+import os
 
 from .integration import run_pr_audit
 
+app = func.FunctionApp()
 
-def main():
-    repo_full_name = os.getenv("TEST_REPO_FULL_NAME")
-    pr_number = os.getenv("TEST_PR_NUMBER")
+@app.route(route="webhook", methods=["POST"])
+def main(req: func.HttpRequest) -> func.HttpResponse:
 
-    if not repo_full_name:
-        raise ValueError("Missing TEST_REPO_FULL_NAME")
-    if not pr_number:
-        raise ValueError("Missing TEST_PR_NUMBER")
+    logging.info('GitHub Webhook received.')
 
-    run_pr_audit(
-        repo_full_name=repo_full_name,
-        pr_number=int(pr_number),
-    )
+    try:
+        # 1. Get the PR data from the request
+        payload = req.get_json()
+
+        labels = [l["name"] for l in payload.get("pull_request", {}).get("labels", [])]
+        
+        TRIGGER_LABEL = "audit-requested" 
+        if TRIGGER_LABEL not in labels: 
+            return func.HttpResponse(f"Skipping: Label '{TRIGGER_LABEL}' not found.", status_code=200)
+        # 2. Call your existing AI logic here
+        run_pr_audit(
+            payload["repository"]["full_name"],
+            pr_number=int(payload["number"]),
+        )
+    
+        
+        return func.HttpResponse("PRGuardian is auditing...", status_code=200)
+    except Exception as e:
+        return func.HttpResponse(f"Error: {str(e)}", status_code=500)
+
+ 
+
+   
 
 
 if __name__ == "__main__":

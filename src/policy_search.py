@@ -14,7 +14,7 @@ search_client = SearchClient(
 )
 
 
-def search_policy_snippets(query_text: str, top_k: int = 3) -> List[str]:
+def search_policy_snippets(query_text: str, top_k: int = 100) -> List[str]:
     results = search_client.search(
         search_text=query_text,
         top=top_k
