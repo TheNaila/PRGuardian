@@ -1,39 +1,67 @@
 # PRGuardian
 
-An AI-powered GitHub pull request auditor that automatically reviews code changes against organizational policies.
+An AI-powered code review and product release decision-making tool that automatically evaluates pull requests to identify the best time to release software.
 
 ## Overview
 
-PRGuardian is an Azure Functions application that integrates with GitHub via webhooks. It uses Azure OpenAI to analyze pull request diffs and provide policy compliance feedback directly on GitHub.
+PRGuardian integrates directly with GitHub through a custom GitHub App. When a pull request is labeled `audit-requested`, the system retrieves the pull request changes and analyzes them using Azure AI technologies to help developers and product managers make informed release decisions.
 
 ## Features
 
 - **Automatic PR Analysis**: Triggered by the `audit-requested` label on pull requests
-- **Policy-Based Review**: Searches relevant organizational policies using Azure Cognitive Search
-- **AI-Powered Insights**: Uses Azure OpenAI to identify compliance issues and code concerns
-- **GitHub Integration**: Posts findings as inline comments and risk assessments on PRs
-- **Risk Scoring**: Provides decision levels (GO, GO WITH CAUTION, NO-GO) based on severity
+- **Code Quality Evaluation**: Evaluates PRs against best practices and company-specific guidelines
+- **Risk Assessment**: Reports concerns as high, medium, or low severity levels
+- **AI-Powered Suggestions**: Provides actionable suggestions to improve code
+- **Release Decision Support**: Analyzes code quality, timeline, and budget to recommend Go/No-Go decisions
+- **GitHub Integration**: Posts findings as inline comments and decision labels on PRs
+- **Policy-Based Search**: Retrieves relevant organizational policies and guidelines using Azure AI Search
 
+## Architecture
 
-### Key Components
+```
+GitHub PR + "audit-requested" label
+           ↓
+    GitHub App Webhook
+           ↓
+    Azure Functions App
+           ↓
+    ┌──────────────────────────────────┐
+    │  Fetch PR Diff                   │
+    │  Parse Changes                   │
+    │  Search Policy Index (AI Search) │
+    └──────────────────────────────────┘
+           ↓
+    Azure OpenAI (GPT-4o-mini)
+           ↓
+    ┌──────────────────────────────────┐
+    │  AI-Powered Code Review          │
+    │  Risk Assessment (High/Med/Low)  │
+    │  Suggestions & Insights          │
+    └──────────────────────────────────┘
+           ↓
+    Post PR Comments & Go/No-Go Label
+```
+
+## Key Components
 
 - **`src/main.py`** - Azure Functions HTTP trigger for GitHub webhooks
-- **`src/orchestrator.py`** - Main workflow orchestration
+- **`src/integration.py`** - Entry point for the audit workflow
+- **`src/orchestrator.py`** - Main workflow orchestration and coordination
 - **`src/fetch_pr_diff.py`** - Retrieves PR diffs from GitHub API
 - **`src/azure_review.py`** - AI-powered code review using Azure OpenAI
-- **`src/policy_search.py`** - Searches organizational policies via Azure Cognitive Search
-- **`src/github_actions.py`** - Posts findings back to GitHub as PR reviews
-- **`src/github_app_auth.py`** - Handles GitHub authentication
+- **`src/policy_search.py`** - Searches policy snippets via Azure AI Search
+- **`src/github_actions.py`** - Posts findings and decisions back to GitHub
+- **`src/github_app_auth.py`** - Handles GitHub App authentication
 
 ## Setup
 
 ### Prerequisites
 
 - Python 3.10+
-- Azure Functions Core Tools
-- GitHub account with app credentials
-- Azure OpenAI instance
-- Azure Cognitive Search index with policies
+- Azure Functions runtime
+- GitHub App with appropriate permissions
+- Azure OpenAI endpoint with GPT-4o-mini deployment
+- Azure AI Search with indexed policy documents
 
 ### Environment Variables
 
@@ -76,18 +104,28 @@ func azure functionapp publish <app-name>
 
 ### Triggering an Audit
 
-1. Open a PR in a GitHub repository
-2. Add the `audit-requested`or any other label
-3. PRGuardian will automatically analyze the PR and post findings
+1. Open a pull request in a GitHub repository with PRGuardian enabled
+2. Add the `audit-requested` label to the PR
+3. PRGuardian automatically receives the webhook and begins the analysis
+4. Review the inline comments and decision summary posted to the PR
 
 ## How It Works
 
-1. **Webhook Event**: GitHub sends a webhook when `audit-requested` label is applied
-2. **Fetch Diff**: Retrieves the raw PR diff via GitHub API
-3. **Parse Positions**: Maps changes to specific line numbers for accurate comments
-4. **Policy Search**: Finds relevant organizational policies using semantic search
-5. **AI Review**: Azure OpenAI analyzes code changes against policies
-6. **Post Results**: Posts a comprehensive review with inline comments and risk assessment
+1. **Webhook Trigger**: GitHub sends a webhook when `audit-requested` label is applied to a PR
+2. **Fetch PR Diff**: Retrieves the raw pull request diff via GitHub API
+3. **Parse Changes**: Maps code changes to specific line numbers for accurate inline comments
+4. **Policy Search**: Searches Azure AI Search index for relevant organizational policies and guidelines
+5. **AI Analysis**: GPT-4o-mini analyzes code changes against retrieved policies and best practices
+6. **Risk Assessment**: Generates findings with severity levels (high, medium, low)
+7. **Post Review**: Posts inline comments with suggestions and a summary review with Go/No-Go decision label
+
+## Benefits
+
+- **Boost Code Quality**: Identify issues before they reach production
+- **Accelerate Delivery**: Automate code review process to reduce review time
+- **Informed Decisions**: Get AI-driven insights to support Go/No-Go release decisions
+- **Minimize Overruns**: Catch risks early to prevent timeline and budget impacts
+- **Consistency**: Apply organizational standards consistently across all PRs
 
 ## Testing
 
