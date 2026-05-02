@@ -13,7 +13,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('GitHub Webhook received.')
 
     try:
-        # 1. Get the PR data from the request
+       
         payload = req.get_json()
 
         labels = [l["name"] for l in payload.get("pull_request", {}).get("labels", [])]
@@ -21,7 +21,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         TRIGGER_LABEL = "audit-requested" 
         if TRIGGER_LABEL not in labels: 
             return func.HttpResponse(f"Skipping: Label '{TRIGGER_LABEL}' not found.", status_code=200)
-        # 2. Call your existing AI logic here
+     
         run_pr_audit(
             payload["repository"]["full_name"],
             pr_number=int(payload["number"]),
